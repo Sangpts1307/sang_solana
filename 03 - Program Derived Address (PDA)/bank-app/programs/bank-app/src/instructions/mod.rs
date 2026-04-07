@@ -1,9 +1,9 @@
 pub mod deposit;
 pub mod initialize;
-// pub mod pause;
-// pub mod withdraw;
+pub mod pause;
+pub mod withdraw;
 
 pub use deposit::*;
 pub use initialize::*;
-// pub use pause::*;
-// pub use withdraw::*;
+pub use pause::*;
+pub use withdraw::*;

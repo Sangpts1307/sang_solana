@@ -1,7 +1,7 @@
 use anchor_lang::{prelude::*, system_program};
 
 use crate::{
-    constant::{BANK_INFO_SEED, BANK_VAULT_SEED, USER_RESERVE_SEED},
+    constant::{BANK_INFO_SEED, BANK_VAULT_SEED, MAX_DEPOSIT, MIN_DEPOSIT, USER_RESERVE_SEED},
     error::BankAppError,
     state::{BankInfo, UserReserve},
     transfer_helper::sol_transfer_from_user,
@@ -41,10 +41,23 @@ pub struct Deposit<'info> {
 impl<'info> Deposit<'info> {
     pub fn process(ctx: Context<Deposit>, deposit_amount: u64) -> Result<()> {
         if ctx.accounts.bank_info.is_paused {
+            msg!("Error: Bank is paused.");
             return Err(BankAppError::BankAppPaused.into());
         }
 
+        if deposit_amount < MIN_DEPOSIT {
+            msg!("Error: Deposit amount {} is below minimum {}.", deposit_amount, MIN_DEPOSIT);
+            return Err(BankAppError::DepositTooSmall.into());
+        }
+
+        if deposit_amount > MAX_DEPOSIT {
+            msg!("Error: Deposit amount {} is above maximum {}.", deposit_amount, MAX_DEPOSIT);
+            return Err(BankAppError::DepositTooLarge.into());
+        }
+
         let user_reserve = &mut ctx.accounts.user_reserve;
+
+        msg!("Depositing {} lamports from user {} to bank vault.", deposit_amount, ctx.accounts.user.key());
 
         sol_transfer_from_user(
             &ctx.accounts.user,
@@ -54,6 +67,8 @@ impl<'info> Deposit<'info> {
         )?;
 
         user_reserve.deposited_amount += deposit_amount;
+
+        msg!("Deposit successful. New reserve balance: {} lamports.", user_reserve.deposited_amount);
 
         Ok(())
     }

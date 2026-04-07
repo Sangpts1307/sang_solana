@@ -92,6 +92,9 @@ solana balance
 Địa chỉ chương trình (Program ID): EDfskqkUwNcbwCY83uhj3XKjnnr1QdwN8mjUkPgzUTjx
 Chữ ký giao dịch Test (Transaction Signature): 4FaahytBDnjxwaZsvG21GmSbCGGjEpoejhjLoXQjjnyPa9NeNsZdzTgDjaebKnHArANk99iUjw8noXMzEkQA5haW
 
+Địa chỉ ví: HTxffo8RU245wuXfyh3LE3nBBHoTCntZtKaUcy42pSKc
+Địa chỉ chương trình: EDfskqkUwNcbwCY83uhj3XKjnnr1QdwN8mjUkPgzUTjx
+Chữ ký giao dịch Test: 4FaahytBDnjxwaZsvG21GmSbCGGjEpoejhjLoXQjjnyPa9NeNsZdzTgDjaebKnHArANk99iUjw8noXMzEkQA5haW
 # Kế hoạch Triển khai Phần 02: Quy trình Đầy đủ (Deploy -> Extend -> Upgrade -> Test -> Close)
 
 Kế hoạch này được xây dựng dựa trên hướng dẫn của Phần 02 và các yêu cầu báo cáo cụ thể của bạn.

@@ -4,6 +4,7 @@ use crate::{
     constant::{BANK_INFO_SEED, BANK_VAULT_SEED, USER_RESERVE_SEED},
     error::BankAppError,
     state::{BankInfo, UserReserve},
+    transfer_helper::sol_transfer_from_pda,
 };
 
 #[derive(Accounts)]
@@ -39,11 +40,32 @@ pub struct Withdraw<'info> {
 impl<'info> Withdraw<'info> {
     pub fn process(ctx: Context<Withdraw>, withdraw_amount: u64) -> Result<()> {
         if ctx.accounts.bank_info.is_paused {
+            msg!("Error: Bank is paused.");
             return Err(BankAppError::BankAppPaused.into());
         }
 
+        let user_reserve = &mut ctx.accounts.user_reserve;
+
+        if user_reserve.deposited_amount < withdraw_amount {
+            msg!("Error: Insufficient funds. Requested: {}, Available: {}.", withdraw_amount, user_reserve.deposited_amount);
+            return Err(BankAppError::InsufficientFunds.into());
+        }
+
         let pda_seeds: &[&[&[u8]]] = &[&[BANK_VAULT_SEED, &[ctx.accounts.bank_info.bump]]];
-        // Your code here
+
+        msg!("Withdrawing {} lamports from bank vault to user {}.", withdraw_amount, ctx.accounts.user.key());
+
+        sol_transfer_from_pda(
+            ctx.accounts.bank_vault.to_account_info(),
+            ctx.accounts.user.to_account_info(),
+            &ctx.accounts.system_program,
+            pda_seeds,
+            withdraw_amount,
+        )?;
+
+        user_reserve.deposited_amount -= withdraw_amount;
+
+        msg!("Withdrawal successful. Remaining reserve balance: {} lamports.", user_reserve.deposited_amount);
 
         Ok(())
     }
