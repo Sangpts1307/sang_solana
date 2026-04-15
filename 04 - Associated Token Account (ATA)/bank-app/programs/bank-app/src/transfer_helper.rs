@@ -32,7 +32,16 @@ pub fn sol_transfer_from_pda<'info>(
     pda_seeds: &[&[&[u8]]],
     amount: u64,
 ) -> Result<()> {
-    //Your code here
+    let ix = transfer(source.key, destination.key, amount);
+    invoke_signed(
+        &ix,
+        &[
+            source,
+            destination,
+            system_program.to_account_info(),
+        ],
+        pda_seeds,
+    )?;
     Ok(())
 }
 
@@ -64,6 +73,16 @@ pub fn token_transfer_from_pda<'info>(
     pda_seeds: &[&[&[u8]]],
     amount: u64,
 ) -> Result<()> {
-    //Your code here
+    let cpi_ctx = CpiContext::new_with_signer(
+        token_program.to_account_info(),
+        token::Transfer {
+            from,
+            to,
+            authority,
+        },
+        pda_seeds,
+    );
+    token::transfer(cpi_ctx, amount)?;
+
     Ok(())
 }
