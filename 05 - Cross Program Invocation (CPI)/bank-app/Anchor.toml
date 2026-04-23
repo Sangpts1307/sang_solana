@@ -5,17 +5,15 @@ seeds = false
 skip-lint = false
 
 [programs.devnet]
-staking-app = "EYdKY4wWuwNr7uVRQNBUEXeJyLCAatSELPck3quW7JvA"
-
-[programs.localnet]
-bank_app = "3q57ftWH75aKfxoNnV6Lu1n8LhV73xxKHAxPapL6Jvh7"
+bank_app = "6SYF6ntmVaHjsWc7E9WJ5deAXvHLT9Fzzv585sKWXc4a"
+staking_app = "Ci8DKHWrT9uqhzoP3bnqTUwekU4MDPyufJzBUzSKJxaF"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Devnet"
-wallet = "/Users/nhatbui97/.config/solana/id.json"
+cluster = "devnet"
+wallet = "/home/sang_blockchain/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
