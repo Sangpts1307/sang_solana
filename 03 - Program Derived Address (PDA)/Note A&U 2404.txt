@@ -1,0 +1,52 @@
+sửa biểu đồ chi tiêu, biểu đồ thành biểu đồ đường -> hiển thị theo từng cơ sở luôn trên 1 biểu đồ
+-> ra tổng tiền chi tiêu của toàn bộ trung tâm
+- hỏi lại phân quyền thêm về quản lý chi tiêu -> admin hay kế toán sẽ làm phần nào, lễ tân sẽ có phần nào
+
+- sẽ có phần thông báo: nhận nhiệm vụ, phân lớp, ngày nghỉ, báo bận,... đối với full tài khoản (để ra sau, xử lý các phần trước khoảng 3 ngày) -> xử lý luôn trước khi bàn giao
+
+- làm việc về phần chi phí sẽ báo lại với a Hùng làm việc với a sếp bên A&U
+
+LÀM VIỆC VỚI ĐỘI DEV:
+- Lỗi liên quan đến reponsive với nhiều thiết bị khác nhau -> ví dụ về menu
+- Lớp học:
++ Thiếu nút thêm học viên trong lớp học
++ Chỉnh sửa add học viên vào nhiều hơn sĩ số tối đa thì có cảnh báo ban đầu, nhưng vẫn tạo mới được
++ Tạo lớp trùng tên mà khác khóa -> vẫn cần luuw được
++ giáo viên cùng giờ mà 2 lớp khác nhau trong cùng 1 thời điểm -> không được như thế
++ lịch học -> rời lịch (chưa check khung giờ lệch nhau mà vẫn pass).
+- Học viên:
++ thêm required email học viên
++ phần tìm kiếm CM thì sẽ không lọc liên tục nữa, mà khi nhấn enter thì mới hiển thị danh sách lên
+
++ Tìm kiếm học viên theo tên đang không tìm kiếm được -> ví dụ lấy học viên ở cuối danh sách -> không tìm được học viên
++ nhấn lưu sửa thì cần ấn tận 2 lần mới quay lại được danh sách
++ Thay đổi tình trạng thành học thử -> tình trạng bên ngoài màn danh sách không hiển thị là học thử -> và bấm lọc cũng không có bản ghi là học thử 
+
+- Mã giảm giá: 
++ Nhập giá trị giảm -> đang bị nhấn xóa 1 nút đang bị xóa thành 2 lần
++ tạo mã mà trong ngày hôm nay hết hạn thì không áp được vào hợp đồng
++ 
+
+- edit profile: chưa
++ chưa validate sđt
++ lỗi ở avatar trên phần profile
+
+- Send email:
++ trang tạo mới send email vẫn bị giật
++ trang send email -> nếu không nhập danh sách email vào thì nó bị đứng màn hình
+
+- Học viên trùng:
++ Học viên trùng -> bị vỡ layouts nếu tên quá dài -> rút ngắn lại, ...
+
+- Auth:
++ đăng xuất rồi vẫn back lại được
++ 
+
+- Light mode, dark mode đang không đc đồng bộ
+
+- BÀN GIAO:
++ Muộn nhất vào 8/5 (thứ 6)
++ toàn bộ source code, db, phân tích thiết kế hệ thống
++ test thật kỹ trước khi bàn giao
++ 
+Chốt vào chiều ngày hôm đó sẽ bàn giao lại src code, db, bản phân tích liên quan (yêu cầu: fix được các lỗi đã show ra trong buổi họp ngày hôm nay)
