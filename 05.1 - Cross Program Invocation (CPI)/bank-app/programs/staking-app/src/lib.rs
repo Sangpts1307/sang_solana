@@ -23,6 +23,60 @@ pub mod staking_app {
         Ok(())
     }
 
+    pub fn stake(ctx: Context<Stake>, amount: u64, is_stake: bool) -> Result<()> {
+        let global_state = &mut ctx.accounts.global_state;
+        let user_info = &mut ctx.accounts.user_info;
+        let current_time: u64 = Clock::get()?.unix_timestamp.try_into().unwrap();
+
+        // 1. CẬP NHẬT LÃI SUẤT
+        if global_state.total_assets > 0 {
+            let pass_time = current_time - global_state.last_update_time;
+            let interest = (global_state.total_assets as u128) * (STAKING_APR as u128) * (pass_time as u128) / 100 / (SECOND_PER_YEAR as u128);
+            global_state.total_assets += interest as u64;
+        }
+        global_state.last_update_time = current_time;
+
+        if is_stake {
+            let shares_to_mint = if global_state.total_shares == 0 {
+                amount
+            } else {
+                (amount as u128 * global_state.total_shares as u128 / global_state.total_assets as u128) as u64
+            };
+
+            // Chuyển SOL vào vault
+            sol_transfer_from_user(
+                &ctx.accounts.user,
+                ctx.accounts.staking_vault.to_account_info(),
+                &ctx.accounts.system_program,
+                amount,
+            )?;
+
+            user_info.shares += shares_to_mint;
+            global_state.total_shares += shares_to_mint;
+            global_state.total_assets += amount;
+        } else {
+            let shares_to_burn = amount;
+            require!(user_info.shares >= shares_to_burn, StakingError::InsufficientShares);
+
+            let sol_to_withdraw = (shares_to_burn as u128 * global_state.total_assets as u128 / global_state.total_shares as u128) as u64;
+
+            let pda_seeds: &[&[&[u8]]] = &[&[b"STAKING_VAULT_V3", &[ctx.bumps.staking_vault]]];
+            sol_transfer_from_pda(
+                ctx.accounts.staking_vault.to_account_info(),
+                ctx.accounts.user.to_account_info(),
+                &ctx.accounts.system_program,
+                pda_seeds,
+                sol_to_withdraw,
+            )?;
+
+            user_info.shares -= shares_to_burn;
+            global_state.total_shares -= shares_to_burn;
+            global_state.total_assets -= sol_to_withdraw;
+        }
+
+        Ok(())
+    }
+
     pub fn stake_token(ctx: Context<StakeToken>, amount: u64, is_stake: bool) -> Result<()> {
         let global_state = &mut ctx.accounts.global_state;
         let user_info = &mut ctx.accounts.user_info;
@@ -69,7 +123,7 @@ pub mod staking_app {
 
             let tokens_to_withdraw = (shares_to_burn as u128 * global_state.total_assets as u128 / global_state.total_shares as u128) as u64;
 
-            let pda_seeds: &[&[&[u8]]] = &[&[b"STAKING_VAULT", &[ctx.bumps.staking_vault]]];
+            let pda_seeds: &[&[&[u8]]] = &[&[b"STAKING_VAULT_V3", &[ctx.bumps.staking_vault]]];
             let cpi_accounts = Transfer {
                 from: ctx.accounts.staking_ata.to_account_info(),
                 to: ctx.accounts.user_ata.to_account_info(),
@@ -90,7 +144,7 @@ pub mod staking_app {
 
 #[derive(Accounts)]
 pub struct InitializeGlobal<'info> {
-    #[account(init, payer = payer, seeds = [b"GLOBAL_STATE"], bump, space = 8 + 8 + 8 + 8)]
+    #[account(init, payer = payer, seeds = [b"GLOBAL_STATE_V3"], bump, space = 8 + 8 + 8 + 8)]
     pub global_state: Account<'info, GlobalState>,
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -98,17 +152,42 @@ pub struct InitializeGlobal<'info> {
 }
 
 #[derive(Accounts)]
-pub struct StakeToken<'info> {
-    #[account(mut, seeds = [b"GLOBAL_STATE"], bump)]
+pub struct Stake<'info> {
+    #[account(mut, seeds = [b"GLOBAL_STATE_V3"], bump)]
     pub global_state: Account<'info, GlobalState>,
 
-    #[account(seeds = [b"STAKING_VAULT"], bump)]
+    #[account(mut, seeds = [b"STAKING_VAULT_V3"], bump)]
     /// CHECK: PDA authority
     pub staking_vault: UncheckedAccount<'info>,
 
     #[account(
         init_if_needed,
-        seeds = [b"USER_INFO_TOKEN", user.key().as_ref(), mint.key().as_ref()],
+        seeds = [b"USER_INFO_V3", user.key().as_ref()],
+        bump,
+        payer = payer,
+        space = 8 + 8 + 8,
+    )]
+    pub user_info: Box<Account<'info, UserStakingInfo>>,
+
+    #[account(mut)]
+    pub user: Signer<'info>,
+    #[account(mut)]
+    pub payer: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct StakeToken<'info> {
+    #[account(mut, seeds = [b"GLOBAL_STATE_V3"], bump)]
+    pub global_state: Account<'info, GlobalState>,
+
+    #[account(seeds = [b"STAKING_VAULT_V3"], bump)]
+    /// CHECK: PDA authority
+    pub staking_vault: UncheckedAccount<'info>,
+
+    #[account(
+        init_if_needed,
+        seeds = [b"USER_INFO_TOKEN_V3", user.key().as_ref(), mint.key().as_ref()],
         bump,
         payer = payer,
         space = 8 + 8 + 8,

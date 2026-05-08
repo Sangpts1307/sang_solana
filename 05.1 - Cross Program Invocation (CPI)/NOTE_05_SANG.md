@@ -40,4 +40,4 @@ Bài tập:
 - cần sửa bài cũ, có thể dùng lại contract, sửa lại cái test thôi
   -> xây 1 file test gửi 3 4 token liên tục -> để sử dụng cùng 1 cái ALT gửi đc 3 4 liên tục
 - thay vì 1 người gửi nhiều token, thì nhiều người gửi 1 token
-  => chủ yếu là viết thêm mấy hàm suwre dụng ALT và viết thêm mấy hàm để tương tác với nó
+  => chủ yếu là viết thêm mấy hàm sử dụng ALT và viết thêm mấy hàm để tương tác với nó

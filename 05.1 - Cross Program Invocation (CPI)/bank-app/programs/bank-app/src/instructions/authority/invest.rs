@@ -30,6 +30,10 @@ pub struct Invest<'info> {
     ///CHECK:
     #[account(mut)]
     pub staking_info: UncheckedAccount<'info>,
+    ///CHECK:
+    #[account(mut)]
+    pub staking_global_state: UncheckedAccount<'info>,
+
     pub staking_program: Program<'info, StakingApp>,
 
     #[account(mut, address = bank_info.authority)]
@@ -49,6 +53,7 @@ impl<'info> Invest<'info> {
             CpiContext::new_with_signer(
                 ctx.accounts.staking_program.to_account_info(),
                 cpi::accounts::Stake {
+                    global_state: ctx.accounts.staking_global_state.to_account_info(),
                     staking_vault: ctx.accounts.staking_vault.to_account_info(),
                     user_info: ctx.accounts.staking_info.to_account_info(),
                     user: ctx.accounts.bank_vault.to_account_info(),
